@@ -480,7 +480,7 @@ MonoBehaviour:
   animator: {fileID: 713449672}
   spriteRenderer: {fileID: 713449667}
   spriteFacesRight: 0
-  walkStateName: Alex_Walk
+  walkStateName: Walk_Mike
 --- !u!212 &713449667
 SpriteRenderer:
   serializedVersion: 3
@@ -1112,7 +1112,7 @@ MonoBehaviour:
   animator: {fileID: 1795267283}
   spriteRenderer: {fileID: 1795267280}
   spriteFacesRight: 0
-  walkStateName: Alex_Walk
+  walkStateName: Walk_Alex
 --- !u!95 &1795267283
 Animator:
   serializedVersion: 7
