@@ -22,6 +22,8 @@ public class PlayerController : MonoBehaviour
     private float moveInput;
     private bool wasMoving = true;
 
+    public bool IsControlled { get; private set; } = true;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -30,8 +32,26 @@ public class PlayerController : MonoBehaviour
         if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
     }
 
+    public void SetControlled(bool value)
+    {
+        IsControlled = value;
+
+        if (!value)
+        {
+            moveInput = 0f;
+            UpdateAnimation();
+        }
+    }
+
     private void Update()
     {
+        if (!IsControlled)
+        {
+            moveInput = 0f;
+            UpdateAnimation();
+            return;
+        }
+
         Keyboard kb = Keyboard.current;
         if (kb == null) return;
 
@@ -74,6 +94,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             animator.Play(walkStateName, 0, 0f);
+            animator.Update(0f);
             animator.speed = 0f;
         }
     }
