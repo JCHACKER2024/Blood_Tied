@@ -16,11 +16,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private bool spriteFacesRight = false;
+
+    [Header("Animation States")]
+    [SerializeField] private string idleStateName = "Alex_Idle";
     [SerializeField] private string walkStateName = "Alex_Walk";
+
+    [Header("Animation Speed")]
+    [SerializeField] private float idleAnimSpeed = 0.3f;
+    [SerializeField] private float walkAnimSpeed = 1.4f;
 
     private Rigidbody2D rb;
     private float moveInput;
-    private bool wasMoving = true;
+    private string currentState = "";
 
     public bool IsControlled { get; private set; } = true;
 
@@ -81,22 +88,22 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateAnimation()
     {
-        if (animator == null) return;
+        if (animator == null || animator.runtimeAnimatorController == null) return;
 
         bool isMoving = moveInput != 0f;
-        if (isMoving == wasMoving) return;
-        wasMoving = isMoving;
+        string desired = isMoving ? walkStateName : idleStateName;
+        if (desired == currentState) return;
 
-        if (isMoving)
+        currentState = desired;
+
+        if (!animator.HasState(0, Animator.StringToHash(desired)))
         {
-            animator.speed = 1f;
+            Debug.LogWarning($"{name}: o estado '{desired}' não existe no Animator. Confirma o nome no Player Controller.", this);
+            return;
         }
-        else
-        {
-            animator.Play(walkStateName, 0, 0f);
-            animator.Update(0f);
-            animator.speed = 0f;
-        }
+
+        animator.speed = isMoving ? walkAnimSpeed : idleAnimSpeed;
+        animator.Play(desired, 0, 0f);
     }
 
     private void FixedUpdate()

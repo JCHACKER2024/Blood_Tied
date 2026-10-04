@@ -480,7 +480,10 @@ MonoBehaviour:
   animator: {fileID: 713449672}
   spriteRenderer: {fileID: 713449667}
   spriteFacesRight: 0
+  idleStateName: Idle_Mike
   walkStateName: Walk_Mike
+  idleAnimSpeed: 1
+  walkAnimSpeed: 1
 --- !u!212 &713449667
 SpriteRenderer:
   serializedVersion: 3
@@ -530,7 +533,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -2676635806540726380, guid: 6cbc6b1d20b64934bb617dd6ab11af8d, type: 3}
+  m_Sprite: {fileID: -4233700018864606936, guid: 6eca2b1432ecdcb4ba0f94f9f10f16c9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -575,8 +578,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 2}
+  m_Offset: {x: 0, y: 1}
+  m_Size: {x: 0.6, y: 2}
   m_Direction: 0
 --- !u!50 &713449670
 Rigidbody2D:
@@ -614,7 +617,7 @@ Transform:
   m_GameObject: {fileID: 713449665}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.55, y: -1.25, z: 0}
+  m_LocalPosition: {x: 6.55, y: -4, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -990,8 +993,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.5, y: 2}
+  m_Offset: {x: 0, y: 1}
+  m_Size: {x: 0.6, y: 2}
   m_Direction: 0
 --- !u!50 &1795267279
 Rigidbody2D:
@@ -1069,7 +1072,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 8178998896061483215, guid: e2d17dbe8595d964da115d658b83553d, type: 3}
+  m_Sprite: {fileID: 938129586416686111, guid: 8ce3eaf27334fff4592367b37d6dd77c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1089,7 +1092,7 @@ Transform:
   m_GameObject: {fileID: 1795267276}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.64, y: -1.25, z: 0}
+  m_LocalPosition: {x: -4.64, y: -4, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1112,7 +1115,10 @@ MonoBehaviour:
   animator: {fileID: 1795267283}
   spriteRenderer: {fileID: 1795267280}
   spriteFacesRight: 0
+  idleStateName: Idle_Alex
   walkStateName: Walk_Alex
+  idleAnimSpeed: 1
+  walkAnimSpeed: 1
 --- !u!95 &1795267283
 Animator:
   serializedVersion: 7

@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d443d44e346670642b36d6537e67a4d7
+guid: d262ac416f877df459d11e74d74118a6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6813572129279612120
-    second: axel_walk10_0
+      213: 8818744149343348209
+    second: mike_idle2_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -102,13 +102,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: axel_walk10_0
+      name: mike_idle2_0
       rect:
         serializedVersion: 2
-        x: 9
+        x: 0
         y: 0
-        width: 72
-        height: 215
+        width: 65
+        height: 211
       alignment: 7
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +117,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 82b69ce8f345171a0800000000000000
-      internalID: -6813572129279612120
+      spriteID: 1f52aa28419726a70800000000000000
+      internalID: 8818744149343348209
       vertices: []
       indices: 
       edges: []
@@ -127,7 +127,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 3c2d862dc6b789b419d3dc459019193b
+    spriteID: 5a0fc578d7526da4f8d99311f0aeb02e
     internalID: 0
     vertices: []
     indices: 
@@ -137,7 +137,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      axel_walk10_0: -6813572129279612120
+      mike_idle2_0: 8818744149343348209
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
