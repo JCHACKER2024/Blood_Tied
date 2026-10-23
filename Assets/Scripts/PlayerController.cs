@@ -1,10 +1,15 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public enum CharacterType { Axel, Mike }
+
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
     public enum Scheme { WASD, Arrows }
+
+    [Header("Personagem")]
+    [SerializeField] private CharacterType character = CharacterType.Axel;
 
     [Header("Controls")]
     [SerializeField] private Scheme scheme = Scheme.WASD;
@@ -22,14 +27,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private string walkStateName = "Alex_Walk";
 
     [Header("Animation Speed")]
-    [SerializeField] private float idleAnimSpeed = 0.3f;
-    [SerializeField] private float walkAnimSpeed = 1.4f;
+    [SerializeField] private float idleAnimSpeed = 1f;
+    [SerializeField] private float walkAnimSpeed = 1f;
 
     private Rigidbody2D rb;
     private float moveInput;
     private string currentState = "";
+    private bool controlled = true;
 
-    public bool IsControlled { get; private set; } = true;
+    public CharacterType Character => character;
+
+    // Fica "não controlado" enquanto o inventário está aberto
+    public bool IsControlled => controlled && !InventoryUI.IsOpen;
 
     private void Awake()
     {
@@ -41,7 +50,7 @@ public class PlayerController : MonoBehaviour
 
     public void SetControlled(bool value)
     {
-        IsControlled = value;
+        controlled = value;
 
         if (!value)
         {

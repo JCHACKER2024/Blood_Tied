@@ -23,5 +23,11 @@ public abstract class Interactable : MonoBehaviour
         prompt.SetActive(value);
     }
 
+    // Se devolver false, este player ignora o objeto (não destaca nem interage)
+    public virtual bool CanInteract(PlayerController player)
+    {
+        return true;
+    }
+
     public abstract void Interact(PlayerController player);
 }

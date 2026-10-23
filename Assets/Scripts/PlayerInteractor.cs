@@ -50,6 +50,8 @@ public class PlayerInteractor : MonoBehaviour
 
         foreach (Interactable i in nearby)
         {
+            if (!i.CanInteract(player)) continue;
+
             float d = Mathf.Abs(i.transform.position.x - transform.position.x);
             if (d < bestDist)
             {

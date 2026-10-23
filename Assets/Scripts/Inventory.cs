@@ -1,51 +1,51 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+
+[Serializable]
+public class ItemInfo
+{
+    public string name;
+    public string description;
+    public Sprite icon;
+
+    public ItemInfo(string name, string description, Sprite icon)
+    {
+        this.name = name;
+        this.description = description;
+        this.icon = icon;
+    }
+}
 
 public class Inventory : MonoBehaviour
 {
     public static Inventory Instance { get; private set; }
 
-    [Tooltip("Opcional: texto no ecrã com o contador de pistas.")]
-    [SerializeField] private TMP_Text counterText;
+    private readonly Dictionary<CharacterType, List<ItemInfo>> items =
+        new Dictionary<CharacterType, List<ItemInfo>>();
 
-    private readonly List<string> collected = new List<string>();
-    private int totalItems;
-
-    public IReadOnlyList<string> Collected => collected;
-    public int TotalItems => totalItems;
-    public bool AllCollected => totalItems > 0 && collected.Count >= totalItems;
-
-    public event Action<string> ItemCollected;
+    public event Action<CharacterType, ItemInfo> ItemAdded;
 
     private void Awake()
     {
         Instance = this;
+        items[CharacterType.Axel] = new List<ItemInfo>();
+        items[CharacterType.Mike] = new List<ItemInfo>();
     }
 
-    private void Start()
+    public IReadOnlyList<ItemInfo> GetItems(CharacterType character)
     {
-        totalItems = FindObjectsByType<PickupItem>().Length;
-        UpdateUI();
+        return items[character];
     }
 
-    public void Add(string itemName)
+    public void Add(CharacterType character, ItemInfo item)
     {
-        collected.Add(itemName);
-        Debug.Log($"Apanhou: {itemName} ({collected.Count}/{totalItems})");
-        ItemCollected?.Invoke(itemName);
-        UpdateUI();
+        items[character].Add(item);
+        ItemAdded?.Invoke(character, item);
     }
 
-    public bool Has(string itemName)
+    public bool Has(CharacterType character, string itemName)
     {
-        return collected.Contains(itemName);
-    }
-
-    private void UpdateUI()
-    {
-        if (counterText != null)
-            counterText.text = $"Pistas: {collected.Count}/{totalItems}";
+        return items[character].Exists(i => i.name == itemName);
     }
 }
