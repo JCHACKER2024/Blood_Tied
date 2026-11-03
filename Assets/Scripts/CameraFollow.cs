@@ -29,6 +29,7 @@ public class CameraFollow : MonoBehaviour
         velocityX = 0f;
         Vector3 pos = transform.position;
         pos.x = GetTargetX();
+        pos.y = GetTargetY(pos.y);
         transform.position = pos;
     }
 
@@ -38,6 +39,7 @@ public class CameraFollow : MonoBehaviour
 
         Vector3 pos = transform.position;
         pos.x = Mathf.SmoothDamp(pos.x, GetTargetX(), ref velocityX, smoothTime);
+        pos.y = GetTargetY(pos.y);
         transform.position = pos;
     }
 
@@ -45,7 +47,7 @@ public class CameraFollow : MonoBehaviour
     {
         float x = target.position.x + offsetX;
 
-        RoomBounds room = GetRoom(target.position.x);
+        RoomBounds room = GetRoom(target.position);
         if (room == null) return x;
 
         float halfWidth = cam.orthographicSize * cam.aspect;
@@ -58,11 +60,17 @@ public class CameraFollow : MonoBehaviour
         return Mathf.Clamp(x, min, max);
     }
 
-    private RoomBounds GetRoom(float x)
+    private float GetTargetY(float currentY)
+    {
+        RoomBounds room = GetRoom(target.position);
+        return room != null ? room.CenterY : currentY;
+    }
+
+    private RoomBounds GetRoom(Vector2 position)
     {
         foreach (RoomBounds r in rooms)
         {
-            if (r != null && r.Contains(x)) return r;
+            if (r != null && r.Contains(position)) return r;
         }
         return null;
     }

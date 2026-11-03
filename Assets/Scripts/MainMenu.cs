@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,6 +7,10 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private string gameSceneName = "Game";
     [SerializeField] private GameObject mainPanel;
     [SerializeField] private GameObject optionsPanel;
+    [Tooltip("Tempo de espera (segundos) para o som do clique acabar antes de mudar de cena.")]
+    [SerializeField] private float exitDelay = 0.25f;
+
+    private bool leaving;
 
     private void Start()
     {
@@ -15,7 +20,8 @@ public class MainMenu : MonoBehaviour
 
     public void Play()
     {
-        SceneManager.LoadScene(gameSceneName);
+        if (leaving) return;
+        StartCoroutine(PlayRoutine());
     }
 
     public void OpenOptions()
@@ -32,6 +38,22 @@ public class MainMenu : MonoBehaviour
 
     public void Quit()
     {
+        if (leaving) return;
+        StartCoroutine(QuitRoutine());
+    }
+
+    private IEnumerator PlayRoutine()
+    {
+        leaving = true;
+        yield return new WaitForSecondsRealtime(exitDelay);
+        SceneManager.LoadScene(gameSceneName);
+    }
+
+    private IEnumerator QuitRoutine()
+    {
+        leaving = true;
+        yield return new WaitForSecondsRealtime(exitDelay);
+
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

@@ -9,10 +9,25 @@ public class RoomBounds : MonoBehaviour
     public float MinX => GetBounds(leftWall).max.x;
     public float MaxX => GetBounds(rightWall).min.x;
 
-    // Indica se um X está dentro desta sala (paredes incluídas)
-    public bool Contains(float x)
+    // Centro vertical da sala (a câmara fica a esta altura)
+    public float CenterY => Area.center.y;
+
+    private Bounds Area
     {
-        return x >= GetBounds(leftWall).min.x && x <= GetBounds(rightWall).max.x;
+        get
+        {
+            Bounds b = GetBounds(leftWall);
+            b.Encapsulate(GetBounds(rightWall));
+            return b;
+        }
+    }
+
+    // Indica se uma posição está dentro desta sala (paredes incluídas)
+    public bool Contains(Vector2 position)
+    {
+        Bounds a = Area;
+        return position.x >= a.min.x && position.x <= a.max.x &&
+               position.y >= a.min.y && position.y <= a.max.y;
     }
 
     private static Bounds GetBounds(Transform t)
