@@ -6,6 +6,8 @@ public class PlayerSwitcher : MonoBehaviour
 {
     [SerializeField] private PlayerController[] players;
     [SerializeField] private CameraFollow cameraFollow;
+    [Tooltip("Desmarca quando cada jogador tiver o seu personagem fixo.")]
+    [SerializeField] private bool allowSwitching = true;
 
     private int currentIndex;
     private bool switching;
@@ -32,6 +34,20 @@ public class PlayerSwitcher : MonoBehaviour
             return;
         }
 
+        // Começa com o personagem escolhido na cena de seleção
+        currentIndex = 0;
+        if (GameSession.SelectedCharacter.HasValue)
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i].Character == GameSession.SelectedCharacter.Value)
+                {
+                    currentIndex = i;
+                    break;
+                }
+            }
+        }
+
         for (int i = 0; i < players.Length; i++)
             players[i].SetControlled(i == currentIndex);
 
@@ -41,7 +57,7 @@ public class PlayerSwitcher : MonoBehaviour
 
     private void Update()
     {
-        if (switching || ScreenFader.Busy || players == null || players.Length < 2) return;
+        if (!allowSwitching || switching || ScreenFader.Busy || players == null || players.Length < 2) return;
 
         Keyboard kb = Keyboard.current;
         if (kb != null && kb.tabKey.wasPressedThisFrame)

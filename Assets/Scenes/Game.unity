@@ -4184,6 +4184,7 @@ MonoBehaviour:
   - {fileID: 1795267282}
   - {fileID: 713449666}
   cameraFollow: {fileID: 519420033}
+  allowSwitching: 1
 --- !u!4 &1089540143
 Transform:
   m_ObjectHideFlags: 0

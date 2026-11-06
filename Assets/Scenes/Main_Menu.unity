@@ -399,7 +399,7 @@ GameObject:
   - component: {fileID: 657643611}
   - component: {fileID: 657643614}
   m_Layer: 5
-  m_Name: OptionsButton
+  m_Name: Options_Btn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -548,7 +548,7 @@ GameObject:
   - component: {fileID: 847396785}
   - component: {fileID: 847396788}
   m_Layer: 5
-  m_Name: QuitButton
+  m_Name: Quit_Btn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -712,7 +712,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 384e187d2c518d34f84fdefce760987f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenu
-  gameSceneName: Game
+  gameSceneName: Character_Select
   mainPanel: {fileID: 1509954909}
   optionsPanel: {fileID: 0}
   exitDelay: 0.25
@@ -865,8 +865,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: QUIT
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 87d97511de153724582bcc798fa121dc, type: 2}
-  m_sharedMaterial: {fileID: 5831758173593677461, guid: 87d97511de153724582bcc798fa121dc, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1077,8 +1077,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PLAY
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 87d97511de153724582bcc798fa121dc, type: 2}
-  m_sharedMaterial: {fileID: 5831758173593677461, guid: 87d97511de153724582bcc798fa121dc, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1321,8 +1321,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: OPTIONS
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 87d97511de153724582bcc798fa121dc, type: 2}
-  m_sharedMaterial: {fileID: 5831758173593677461, guid: 87d97511de153724582bcc798fa121dc, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1413,7 +1413,7 @@ GameObject:
   - component: {fileID: 1982570623}
   - component: {fileID: 1982570626}
   m_Layer: 5
-  m_Name: PlayButton
+  m_Name: Play_Btn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
