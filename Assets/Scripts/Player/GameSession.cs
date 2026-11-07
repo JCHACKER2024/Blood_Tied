@@ -1,9 +1,18 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class GameSession
 {
     // null = ainda não escolheu (ex: abriste a cena Game diretamente no editor)
     public static CharacterType? SelectedCharacter { get; private set; }
+
+    // Itens apanhados: sobrevivem às mudanças de cena (ex: Game -> Interrogatorio)
+    private static readonly Dictionary<CharacterType, List<ItemInfo>> items =
+        new Dictionary<CharacterType, List<ItemInfo>>
+        {
+            { CharacterType.Axel, new List<ItemInfo>() },
+            { CharacterType.Mike, new List<ItemInfo>() }
+        };
 
     public static void Select(CharacterType character)
     {
@@ -15,9 +24,31 @@ public static class GameSession
         SelectedCharacter = null;
     }
 
+    public static IReadOnlyList<ItemInfo> GetItems(CharacterType character)
+    {
+        return items[character];
+    }
+
+    public static void AddItem(CharacterType character, ItemInfo item)
+    {
+        items[character].Add(item);
+    }
+
+    public static bool HasItem(CharacterType character, string itemName)
+    {
+        return items[character].Exists(i => i.name == itemName);
+    }
+
+    public static void ResetItems()
+    {
+        foreach (List<ItemInfo> list in items.Values)
+            list.Clear();
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetOnPlay()
     {
         SelectedCharacter = null;
+        ResetItems();
     }
 }

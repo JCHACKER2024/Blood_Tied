@@ -21,31 +21,29 @@ public class Inventory : MonoBehaviour
 {
     public static Inventory Instance { get; private set; }
 
-    private readonly Dictionary<CharacterType, List<ItemInfo>> items =
-        new Dictionary<CharacterType, List<ItemInfo>>();
-
     public event Action<CharacterType, ItemInfo> ItemAdded;
 
     private void Awake()
     {
         Instance = this;
-        items[CharacterType.Axel] = new List<ItemInfo>();
-        items[CharacterType.Mike] = new List<ItemInfo>();
+
+        // Nova partida: começa com o inventário vazio
+        GameSession.ResetItems();
     }
 
     public IReadOnlyList<ItemInfo> GetItems(CharacterType character)
     {
-        return items[character];
+        return GameSession.GetItems(character);
     }
 
     public void Add(CharacterType character, ItemInfo item)
     {
-        items[character].Add(item);
+        GameSession.AddItem(character, item);
         ItemAdded?.Invoke(character, item);
     }
 
     public bool Has(CharacterType character, string itemName)
     {
-        return items[character].Exists(i => i.name == itemName);
+        return GameSession.HasItem(character, itemName);
     }
 }

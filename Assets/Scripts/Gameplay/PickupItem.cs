@@ -12,9 +12,19 @@ public class PickupItem : Interactable
     [SerializeField] private bool axelCanPickup = true;
     [SerializeField] private bool mikeCanPickup = true;
 
+    [Header("Desaparece depois de apanhado?")]
+    [Tooltip("Axel: guarda o objeto na mochila (sai do jogo).")]
+    [SerializeField] private bool axelRemovesItem = true;
+    [Tooltip("Mike: tira uma foto (o objeto fica no sítio).")]
+    [SerializeField] private bool mikeRemovesItem = false;
+
     public override bool CanInteract(PlayerController player)
     {
-        return player.Character == CharacterType.Axel ? axelCanPickup : mikeCanPickup;
+        bool allowed = player.Character == CharacterType.Axel ? axelCanPickup : mikeCanPickup;
+        if (!allowed) return false;
+
+        // Já tem este item: não repete
+        return Inventory.Instance == null || !Inventory.Instance.Has(player.Character, itemName);
     }
 
     public override void Interact(PlayerController player)
@@ -28,6 +38,8 @@ public class PickupItem : Interactable
         }
 
         Inventory.Instance.Add(player.Character, new ItemInfo(itemName, description, icon));
-        Destroy(gameObject);
+
+        bool remove = player.Character == CharacterType.Axel ? axelRemovesItem : mikeRemovesItem;
+        if (remove) Destroy(gameObject);
     }
 }
