@@ -1,10 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GameMode { Solo, Host, Client }
+
 public static class GameSession
 {
     // null = ainda não escolheu (ex: abriste a cena Game diretamente no editor)
     public static CharacterType? SelectedCharacter { get; private set; }
+
+    // Solo por defeito. Host e Client serão usados no co-op.
+    public static GameMode Mode { get; private set; } = GameMode.Solo;
 
     // Itens apanhados: sobrevivem às mudanças de cena (ex: Game -> Interrogatorio)
     private static readonly Dictionary<CharacterType, List<ItemInfo>> items =
@@ -17,6 +22,11 @@ public static class GameSession
     public static void Select(CharacterType character)
     {
         SelectedCharacter = character;
+    }
+
+    public static void SetMode(GameMode mode)
+    {
+        Mode = mode;
     }
 
     public static void Clear()
@@ -49,6 +59,7 @@ public static class GameSession
     private static void ResetOnPlay()
     {
         SelectedCharacter = null;
+        Mode = GameMode.Solo;
         ResetItems();
     }
 }
