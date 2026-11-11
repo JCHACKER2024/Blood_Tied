@@ -32,6 +32,13 @@ public class InterrogationManager : MonoBehaviour
     [Tooltip("Usado se abrires esta cena diretamente no editor.")]
     [SerializeField] private CharacterType fallbackCharacter = CharacterType.Axel;
 
+    [Header("Tempo para responder")]
+    [Tooltip("Segundos por pergunta. 0 = sem limite.")]
+    [SerializeField] private float secondsPerQuestion = 15f;
+    [SerializeField] private Slider timerBar;
+    [TextArea]
+    [SerializeField] private string timeoutReply = "Demoraste demasiado a responder...";
+
     [Header("UI - Pergunta")]
     [SerializeField] private TMP_Text questionText;
     [SerializeField] private TMP_Text replyText;
@@ -52,6 +59,8 @@ public class InterrogationManager : MonoBehaviour
     private int index;
     private int correct;
     private bool answered;
+    private float timeLeft;
+    private bool timerRunning;
 
     private void Start()
     {
@@ -80,6 +89,19 @@ public class InterrogationManager : MonoBehaviour
         ShowQuestion();
     }
 
+    private void Update()
+    {
+        if (!timerRunning || answered) return;
+
+        timeLeft -= Time.deltaTime;
+
+        if (timerBar != null)
+            timerBar.value = Mathf.Clamp01(timeLeft / secondsPerQuestion);
+
+        if (timeLeft <= 0f)
+            Resolve(null, true);
+    }
+
     private void ShowQuestion()
     {
         answered = false;
@@ -91,20 +113,38 @@ public class InterrogationManager : MonoBehaviour
         if (progressText != null)
             progressText.text = $"Pergunta {index + 1}/{questions.Length}";
 
+        timerRunning = secondsPerQuestion > 0f;
+        timeLeft = secondsPerQuestion;
+
+        if (timerBar != null)
+        {
+            timerBar.gameObject.SetActive(timerRunning);
+            timerBar.value = 1f;
+        }
+
         SetAnswersInteractable(true);
         continueButton.gameObject.SetActive(false);
     }
 
     private void Answer(ItemInfo item)
     {
+        Resolve(item, false);
+    }
+
+    private void Resolve(ItemInfo item, bool timedOut)
+    {
         if (answered) return;
         answered = true;
+        timerRunning = false;
 
         InterrogationQuestion q = questions[index];
-        bool good = item != null && IsGood(q, item.name);
+        bool good = !timedOut && item != null && IsGood(q, item.name);
         if (good) correct++;
 
-        replyText.text = good ? q.goodReply : q.badReply;
+        if (timedOut)
+            replyText.text = timeoutReply;
+        else
+            replyText.text = good ? q.goodReply : q.badReply;
 
         SetAnswersInteractable(false);
         continueButton.gameObject.SetActive(true);
@@ -122,6 +162,9 @@ public class InterrogationManager : MonoBehaviour
 
     private void ShowEnding()
     {
+        timerRunning = false;
+        if (timerBar != null) timerBar.gameObject.SetActive(false);
+
         InterrogationEnding best = null;
 
         if (endings != null)

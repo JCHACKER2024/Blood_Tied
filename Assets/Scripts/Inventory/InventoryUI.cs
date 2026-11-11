@@ -6,7 +6,10 @@ using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
-    public static bool IsOpen { get; private set; }
+    private static bool inventoryOpen;
+
+    // true com o inventário OU a vista grande de um item abertos (o player fica parado)
+    public static bool IsOpen => inventoryOpen || ItemViewer.IsOpen;
 
     [Header("Painel")]
     [SerializeField] private GameObject panel;
@@ -15,15 +18,15 @@ public class InventoryUI : MonoBehaviour
     [Header("Grelha")]
     [SerializeField] private Transform gridParent;
     [SerializeField] private InventorySlot slotPrefab;
-    [SerializeField] private int minSlots = 9;
+    [SerializeField] private int minSlots = 15;
     [Tooltip("Tem de ser igual ao Constraint Count do Grid Layout Group.")]
-    [SerializeField] private int columns = 3;
+    [SerializeField] private int columns = 5;
 
     [Header("Detalhe")]
     [SerializeField] private Image detailImage;
     [SerializeField] private TMP_Text detailName;
     [SerializeField] private TMP_Text detailDescription;
-    [SerializeField] private string emptyDetailText = "Seleciona um item.";
+    [SerializeField] private string emptyDetailText = "Seleciona um item. (E - Examinar)";
 
     private readonly List<InventorySlot> slots = new List<InventorySlot>();
     private PlayerController[] players;
@@ -32,7 +35,7 @@ public class InventoryUI : MonoBehaviour
 
     private void Awake()
     {
-        IsOpen = false;
+        inventoryOpen = false;
     }
 
     private void Start()
@@ -40,27 +43,24 @@ public class InventoryUI : MonoBehaviour
         players = FindObjectsByType<PlayerController>();
         panel.SetActive(false);
         ShowDetail(null);
-
-        if (Inventory.Instance != null)
-            Inventory.Instance.ItemAdded += OnItemAdded;
     }
 
     private void OnDestroy()
     {
-        IsOpen = false;
-
-        if (Inventory.Instance != null)
-            Inventory.Instance.ItemAdded -= OnItemAdded;
+        inventoryOpen = false;
     }
 
     private void Update()
     {
+        // A vista grande tem prioridade sobre as teclas do inventário
+        if (ItemViewer.IsOpen || ItemViewer.ChangedThisFrame) return;
+
         Keyboard kb = Keyboard.current;
         if (kb == null) return;
 
         if (kb.iKey.wasPressedThisFrame)
         {
-            if (IsOpen)
+            if (inventoryOpen)
             {
                 Close();
             }
@@ -69,9 +69,13 @@ public class InventoryUI : MonoBehaviour
                 Open(c, null);
             }
         }
-        else if (IsOpen && (kb.escapeKey.wasPressedThisFrame || kb.tabKey.wasPressedThisFrame))
+        else if (inventoryOpen && (kb.escapeKey.wasPressedThisFrame || kb.tabKey.wasPressedThisFrame))
         {
             Close();
+        }
+        else if (inventoryOpen && kb.eKey.wasPressedThisFrame && selected != null && ItemViewer.Instance != null)
+        {
+            ItemViewer.Instance.Show(selected);
         }
     }
 
@@ -90,16 +94,11 @@ public class InventoryUI : MonoBehaviour
         return false;
     }
 
-    private void OnItemAdded(CharacterType character, ItemInfo item)
-    {
-        Open(character, item);
-    }
-
     public void Open(CharacterType character, ItemInfo highlight)
     {
         shown = character;
         selected = highlight;
-        IsOpen = true;
+        inventoryOpen = true;
         panel.SetActive(true);
 
         if (titleText != null) titleText.text = $"Inventário - {character}";
@@ -110,7 +109,7 @@ public class InventoryUI : MonoBehaviour
 
     public void Close()
     {
-        IsOpen = false;
+        inventoryOpen = false;
         panel.SetActive(false);
     }
 

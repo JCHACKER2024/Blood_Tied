@@ -9,6 +9,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject mainPanel;
     [SerializeField] private GameObject modePanel;
     [SerializeField] private GameObject optionsPanel;
+    [SerializeField] private GameObject catalogPanel;
     [Tooltip("Tempo de espera (segundos) para o som do clique acabar antes de mudar de cena.")]
     [SerializeField] private float exitDelay = 0.25f;
 
@@ -23,9 +24,8 @@ public class MainMenu : MonoBehaviour
     // Botão Play: abre o painel com os modos de jogo
     public void Play()
     {
-        if (mainPanel != null) mainPanel.SetActive(false);
-        if (optionsPanel != null) optionsPanel.SetActive(false);
-        if (modePanel != null) modePanel.SetActive(true);
+        HideAll();
+        SetActive(modePanel, true);
     }
 
     // Botão "Jogar sozinho"
@@ -39,22 +39,39 @@ public class MainMenu : MonoBehaviour
 
     public void OpenOptions()
     {
-        if (mainPanel != null) mainPanel.SetActive(false);
-        if (modePanel != null) modePanel.SetActive(false);
-        if (optionsPanel != null) optionsPanel.SetActive(true);
+        HideAll();
+        SetActive(optionsPanel, true);
+    }
+
+    public void OpenCatalog()
+    {
+        HideAll();
+        SetActive(catalogPanel, true);
     }
 
     public void ShowMain()
     {
-        if (optionsPanel != null) optionsPanel.SetActive(false);
-        if (modePanel != null) modePanel.SetActive(false);
-        if (mainPanel != null) mainPanel.SetActive(true);
+        HideAll();
+        SetActive(mainPanel, true);
     }
 
     public void Quit()
     {
         if (leaving) return;
         StartCoroutine(QuitRoutine());
+    }
+
+    private void HideAll()
+    {
+        SetActive(mainPanel, false);
+        SetActive(modePanel, false);
+        SetActive(optionsPanel, false);
+        SetActive(catalogPanel, false);
+    }
+
+    private static void SetActive(GameObject go, bool value)
+    {
+        if (go != null) go.SetActive(value);
     }
 
     private IEnumerator PlayRoutine()

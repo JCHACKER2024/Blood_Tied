@@ -19,6 +19,11 @@ public static class GameSession
             { CharacterType.Mike, new List<ItemInfo>() }
         };
 
+    // Itens que o Mike escondeu (o Axel perde o acesso)
+    private static readonly HashSet<string> hiddenItems = new HashSet<string>();
+
+    public static IReadOnlyCollection<string> HiddenItems => hiddenItems;
+
     public static void Select(CharacterType character)
     {
         SelectedCharacter = character;
@@ -49,10 +54,23 @@ public static class GameSession
         return items[character].Exists(i => i.name == itemName);
     }
 
+    public static void HideItem(string itemName)
+    {
+        hiddenItems.Add(itemName);
+    }
+
+    public static bool IsHidden(string itemName)
+    {
+        return hiddenItems.Contains(itemName);
+    }
+
+    // Nova partida: limpa os itens apanhados e os escondidos
     public static void ResetItems()
     {
         foreach (List<ItemInfo> list in items.Values)
             list.Clear();
+
+        hiddenItems.Clear();
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

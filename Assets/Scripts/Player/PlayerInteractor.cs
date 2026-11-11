@@ -37,20 +37,28 @@ public class PlayerInteractor : MonoBehaviour
         SetCurrent(GetClosest());
 
         Keyboard kb = Keyboard.current;
-        if (current != null && kb != null && kb.eKey.wasPressedThisFrame)
+        if (current == null || kb == null) return;
+
+        if (kb.eKey.wasPressedThisFrame && current.CanInteract(player))
+        {
             current.Interact(player);
+        }
+        else if (kb.fKey.wasPressedThisFrame && current.CanSecondaryInteract(player))
+        {
+            current.SecondaryInteract(player);
+        }
     }
 
     private Interactable GetClosest()
     {
-        nearby.RemoveAll(i => i == null);
+        nearby.RemoveAll(i => i == null || !i.isActiveAndEnabled);
 
         Interactable best = null;
         float bestDist = float.MaxValue;
 
         foreach (Interactable i in nearby)
         {
-            if (!i.CanInteract(player)) continue;
+            if (!i.CanInteract(player) && !i.CanSecondaryInteract(player)) continue;
 
             float d = Mathf.Abs(i.transform.position.x - transform.position.x);
             if (d < bestDist)
@@ -67,8 +75,16 @@ public class PlayerInteractor : MonoBehaviour
     {
         if (next == current) return;
 
-        if (current != null) current.SetHighlighted(false);
+        if (current != null)
+        {
+            current.SetHighlighted(false, player);
+        }
+
         current = next;
-        if (current != null) current.SetHighlighted(true);
+
+        if (current != null)
+        {
+            current.SetHighlighted(true, player);
+        }
     }
 }
