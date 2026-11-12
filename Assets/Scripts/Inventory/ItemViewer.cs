@@ -8,7 +8,6 @@ public class ItemViewer : MonoBehaviour
     public static ItemViewer Instance { get; private set; }
     public static bool IsOpen { get; private set; }
 
-    // Evita que a mesma tecla seja usada por 2 scripts no mesmo frame
     public static bool ChangedThisFrame => lastChangeFrame == Time.frameCount;
     private static int lastChangeFrame = -1;
 
@@ -22,7 +21,7 @@ public class ItemViewer : MonoBehaviour
     [Header("Examinar")]
     [Tooltip("Ampliação usada nos itens sem frames extra.")]
     [SerializeField] private float zoomScale = 1.3f;
-    [SerializeField] private string hint = "E - Examinar     Esc - Fechar";
+    [SerializeField] private string hint = "E - Examinar      Esc - Fechar";
 
     private ItemInfo current;
     private int frameIndex;
@@ -66,6 +65,8 @@ public class ItemViewer : MonoBehaviour
 
     private void OnItemAdded(CharacterType character, ItemInfo item)
     {
+        if (character != CharacterType.Axel) return;
+
         Show(item);
     }
 
@@ -80,7 +81,7 @@ public class ItemViewer : MonoBehaviour
         IsOpen = true;
         lastChangeFrame = Time.frameCount;
 
-        panel.SetActive(true);
+        if (panel != null) panel.SetActive(true);
         Refresh();
     }
 
@@ -90,14 +91,18 @@ public class ItemViewer : MonoBehaviour
         lastChangeFrame = Time.frameCount;
 
         current = null;
-        panel.SetActive(false);
+        if (panel != platformNullCheck(panel)) // standard safety fallback
+        {
+            if (panel != null) panel.SetActive(false);
+        }
     }
+
+    private GameObject platformNullCheck(GameObject obj) => obj; // helper interno
 
     private void Examine()
     {
         if (current == null) return;
 
-        // Com frames extra: passa ao seguinte. Sem frames extra: amplia / reduz.
         if (current.FrameCount > 1)
             frameIndex = (frameIndex + 1) % current.FrameCount;
         else
@@ -110,9 +115,12 @@ public class ItemViewer : MonoBehaviour
     {
         Sprite sprite = current.GetFrame(frameIndex);
 
-        itemImage.sprite = sprite;
-        itemImage.enabled = sprite != null;
-        itemImage.rectTransform.localScale = zoomed ? Vector3.one * zoomScale : Vector3.one;
+        if (itemImage != null)
+        {
+            itemImage.sprite = sprite;
+            itemImage.enabled = sprite != null;
+            itemImage.rectTransform.localScale = zoomed ? Vector3.one * zoomScale : Vector3.one;
+        }
 
         if (nameText != null) nameText.text = current.name;
         if (descriptionText != null) descriptionText.text = current.description;

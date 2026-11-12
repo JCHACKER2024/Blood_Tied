@@ -8,12 +8,15 @@ public class InventoryUI : MonoBehaviour
 {
     private static bool inventoryOpen;
 
-    // true com o inventário OU a vista grande de um item abertos (o player fica parado)
-    public static bool IsOpen => inventoryOpen || ItemViewer.IsOpen;
+    public static bool IsOpen => inventoryOpen || ItemViewer.IsOpen || CameraInventoryUI.IsOpen;
 
-    [Header("Painel")]
+    [Header("Painel (Axel)")]
     [SerializeField] private GameObject panel;
     [SerializeField] private TMP_Text titleText;
+
+    [Header("Câmara (Mike)")]
+    [Tooltip("O objeto que tem o componente Camera Inventory UI.")]
+    [SerializeField] private CameraInventoryUI cameraUI;
 
     [Header("Grelha")]
     [SerializeField] private Transform gridParent;
@@ -40,8 +43,8 @@ public class InventoryUI : MonoBehaviour
 
     private void Start()
     {
-        players = FindObjectsByType<PlayerController>();
-        panel.SetActive(false);
+        players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        if (panel != null) panel.SetActive(false);
         ShowDetail(null);
     }
 
@@ -52,8 +55,8 @@ public class InventoryUI : MonoBehaviour
 
     private void Update()
     {
-        // A vista grande tem prioridade sobre as teclas do inventário
         if (ItemViewer.IsOpen || ItemViewer.ChangedThisFrame) return;
+        if (CameraInventoryUI.IsOpen || CameraInventoryUI.ChangedThisFrame) return;
 
         Keyboard kb = Keyboard.current;
         if (kb == null) return;
@@ -66,7 +69,10 @@ public class InventoryUI : MonoBehaviour
             }
             else if (!ScreenFader.Busy && TryGetControlled(out CharacterType c))
             {
-                Open(c, null);
+                if (c == CharacterType.Mike && cameraUI != null)
+                    cameraUI.Open(null);
+                else
+                    Open(c, null);
             }
         }
         else if (inventoryOpen && (kb.escapeKey.wasPressedThisFrame || kb.tabKey.wasPressedThisFrame))
@@ -99,7 +105,7 @@ public class InventoryUI : MonoBehaviour
         shown = character;
         selected = highlight;
         inventoryOpen = true;
-        panel.SetActive(true);
+        if (panel != null) panel.SetActive(true);
 
         if (titleText != null) titleText.text = $"Inventário - {character}";
 
@@ -110,7 +116,7 @@ public class InventoryUI : MonoBehaviour
     public void Close()
     {
         inventoryOpen = false;
-        panel.SetActive(false);
+        if (panel != null) panel.SetActive(false);
     }
 
     public void Hover(ItemInfo item)
@@ -127,6 +133,7 @@ public class InventoryUI : MonoBehaviour
 
     private void Refresh()
     {
+        if (Inventory.Instance == null) return;
         IReadOnlyList<ItemInfo> items = Inventory.Instance.GetItems(shown);
 
         int total = Mathf.Max(minSlots, items.Count);
