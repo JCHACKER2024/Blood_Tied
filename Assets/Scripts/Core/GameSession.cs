@@ -5,13 +5,9 @@ public enum GameMode { Solo, Host, Client }
 
 public static class GameSession
 {
-    // null = ainda não escolheu (ex: abriste a cena Game diretamente no editor)
     public static CharacterType? SelectedCharacter { get; private set; }
-
-    // Solo por defeito. Host e Client serão usados no co-op.
     public static GameMode Mode { get; private set; } = GameMode.Solo;
 
-    // Itens apanhados: sobrevivem às mudanças de cena (ex: Game -> Interrogatorio)
     private static readonly Dictionary<CharacterType, List<ItemInfo>> items =
         new Dictionary<CharacterType, List<ItemInfo>>
         {
@@ -19,30 +15,17 @@ public static class GameSession
             { CharacterType.Mike, new List<ItemInfo>() }
         };
 
-    // Itens que o Mike escondeu (o Axel perde o acesso)
-    private static readonly HashSet<string> hiddenItems = new HashSet<string>();
+    // Regista quem escondeu o item
+    private static readonly Dictionary<string, CharacterType> hiddenItemsBy = new Dictionary<string, CharacterType>();
 
-    public static IReadOnlyCollection<string> HiddenItems => hiddenItems;
+    // Evita spam/loops de tentar esconder várias vezes o mesmo item
+    private static readonly HashSet<string> processedHideAttempts = new HashSet<string>();
 
-    public static void Select(CharacterType character)
-    {
-        SelectedCharacter = character;
-    }
+    public static void Select(CharacterType character) => SelectedCharacter = character;
+    public static void SetMode(GameMode mode) => Mode = mode;
+    public static void Clear() => SelectedCharacter = null;
 
-    public static void SetMode(GameMode mode)
-    {
-        Mode = mode;
-    }
-
-    public static void Clear()
-    {
-        SelectedCharacter = null;
-    }
-
-    public static IReadOnlyList<ItemInfo> GetItems(CharacterType character)
-    {
-        return items[character];
-    }
+    public static IReadOnlyList<ItemInfo> GetItems(CharacterType character) => items[character];
 
     public static void AddItem(CharacterType character, ItemInfo item)
     {
@@ -54,23 +37,40 @@ public static class GameSession
         return items[character].Exists(i => i.name == itemName);
     }
 
-    public static void HideItem(string itemName)
+    public static void HideItem(string itemName, CharacterType hider)
     {
-        hiddenItems.Add(itemName);
+        hiddenItemsBy[itemName] = hider;
+        processedHideAttempts.Add(itemName);
     }
 
     public static bool IsHidden(string itemName)
     {
-        return hiddenItems.Contains(itemName);
+        return hiddenItemsBy.ContainsKey(itemName) && !processedHideAttempts.Contains(itemName + "_exposed");
     }
 
-    // Nova partida: limpa os itens apanhados e os escondidos
+    // Regista que o item foi visto a ser escondido (ficando exposto no cenário)
+    public static void ExposeItem(string itemName)
+    {
+        processedHideAttempts.Add(itemName + "_exposed");
+    }
+
+    public static bool IsExposed(string itemName)
+    {
+        return processedHideAttempts.Contains(itemName + "_exposed");
+    }
+
+    public static bool HasBeenProcessed(string itemName)
+    {
+        return processedHideAttempts.Contains(itemName);
+    }
+
     public static void ResetItems()
     {
         foreach (List<ItemInfo> list in items.Values)
             list.Clear();
 
-        hiddenItems.Clear();
+        hiddenItemsBy.Clear();
+        processedHideAttempts.Clear();
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

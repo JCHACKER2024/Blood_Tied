@@ -52,15 +52,20 @@ public class ItemViewer : MonoBehaviour
 
     private void Update()
     {
-        if (!IsOpen || ChangedThisFrame) return;
+        if (!IsOpen) return;
 
         Keyboard kb = Keyboard.current;
         if (kb == null) return;
 
-        if (kb.eKey.wasPressedThisFrame)
-            Examine();
-        else if (kb.escapeKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame)
+        // Permitir fechar com ESC ou Espaço independentemente do frame de abertura
+        if (kb.escapeKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame)
+        {
             Close();
+        }
+        else if (!ChangedThisFrame && kb.eKey.wasPressedThisFrame)
+        {
+            Examine();
+        }
     }
 
     private void OnItemAdded(CharacterType character, ItemInfo item)
@@ -91,13 +96,11 @@ public class ItemViewer : MonoBehaviour
         lastChangeFrame = Time.frameCount;
 
         current = null;
-        if (panel != platformNullCheck(panel)) // standard safety fallback
+        if (panel != null)
         {
-            if (panel != null) panel.SetActive(false);
+            panel.SetActive(false);
         }
     }
-
-    private GameObject platformNullCheck(GameObject obj) => obj; // helper interno
 
     private void Examine()
     {

@@ -43,7 +43,8 @@ public class InventoryUI : MonoBehaviour
 
     private void Start()
     {
-        players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        // Correção do aviso CS0618: Removido o FindObjectsSortMode
+        players = FindObjectsByType<PlayerController>(FindObjectsInactive.Exclude);
         if (panel != null) panel.SetActive(false);
         ShowDetail(null);
     }
