@@ -36,8 +36,13 @@ public class PlayerInteractor : MonoBehaviour
 
         SetCurrent(GetClosest());
 
+        if (current == null) return;
+
+        // Mantém o texto do aviso sempre certo (ex: depois de tirar a foto, o E deixa de aparecer)
+        current.UpdatePromptText(player);
+
         Keyboard kb = Keyboard.current;
-        if (current == null || kb == null) return;
+        if (kb == null) return;
 
         if (kb.eKey.wasPressedThisFrame && current.CanInteract(player))
         {

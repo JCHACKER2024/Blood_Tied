@@ -6,11 +6,14 @@ public class PlayerSwitcher : MonoBehaviour
 {
     [SerializeField] private PlayerController[] players;
     [SerializeField] private CameraFollow cameraFollow;
-    [Tooltip("Desmarca quando cada jogador tiver o seu personagem fixo.")]
+    [Tooltip("Só tem efeito em modo solo. No co-op o Tab nunca troca de personagem.")]
     [SerializeField] private bool allowSwitching = true;
 
     private int currentIndex;
     private bool switching;
+    private bool uiWasOpen;
+
+    private bool CanSwitch => allowSwitching && GameSession.Mode == GameMode.Solo;
 
     private void Awake()
     {
@@ -57,11 +60,19 @@ public class PlayerSwitcher : MonoBehaviour
 
     private void Update()
     {
-        if (!allowSwitching || switching || ScreenFader.Busy || players == null || players.Length < 2) return;
+        if (!CanSwitch || switching || ScreenFader.Busy || players == null || players.Length < 2) return;
+
+        // Não troca com inventário/câmara/vista aberta, nem no frame em que o Tab os fecha
+        if (InventoryUI.IsOpen || uiWasOpen) return;
 
         Keyboard kb = Keyboard.current;
         if (kb != null && kb.tabKey.wasPressedThisFrame)
             StartCoroutine(SwitchRoutine());
+    }
+
+    private void LateUpdate()
+    {
+        uiWasOpen = InventoryUI.IsOpen;
     }
 
     private IEnumerator SwitchRoutine()
