@@ -608,17 +608,19 @@ MonoBehaviour:
     - Isqueiro
     goodReply: Correct
     badReply: Incorrect
-  endings:
-  - title: Suspeito
-    text: 
-    minCorrect: 0
-  - title: Inocente
-    text: 
-    minCorrect: 2
   fallbackCharacter: 0
+  axelWinsEnding:
+    title: ' Innocent'
+    text: Mike is guilty.
+  mikeWinsEnding:
+    title: ' Innocent'
+    text: Axel is guilty.
+  bothJailedEnding:
+    title: Guilty
+    text: Both Mike and Axel are guilty.
   secondsPerQuestion: 30
   timerBar: {fileID: 1473167777}
-  timeoutReply: Demoraste demasiado a responder...
+  timeoutReply: Take too long to answer...
   questionText: {fileID: 225067443}
   replyText: {fileID: 1162137369}
   progressText: {fileID: 629940405}

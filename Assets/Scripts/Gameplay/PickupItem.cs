@@ -13,6 +13,12 @@ public class PickupItem : Interactable
     [Tooltip("Frames extra ao examinar. Vazio = o E só amplia.")]
     [SerializeField] private Sprite[] examineFrames;
 
+    [Header("Pontos (dados quando o item é recolhido)")]
+    [Tooltip("Pontos que este item dá ao Axel (negativo se o incriminar).")]
+    [SerializeField] private int axelPoints = 0;
+    [Tooltip("Pontos que este item dá ao Mike (negativo se o incriminar).")]
+    [SerializeField] private int mikePoints = 0;
+
     [Header("Quem pode apanhar / fotografar (tecla E)")]
     [SerializeField] private bool axelCanPickup = true;
     [SerializeField] private bool mikeCanPickup = true;
@@ -82,6 +88,10 @@ public class PickupItem : Interactable
         }
 
         Inventory.Instance.Add(player.Character, new ItemInfo(itemName, description, icon, examineFrames));
+
+        // Os pontos entram na conta dos dois (uma única vez por item)
+        GameSession.RegisterCollected(itemName, axelPoints, mikePoints);
+        Debug.Log($"[Pontos] {itemName} recolhido por {player.Character} -> Axel: {GameSession.GetScore(CharacterType.Axel)} | Mike: {GameSession.GetScore(CharacterType.Mike)}");
 
         if (player.Character == CharacterType.Axel && axelRemovesItem)
         {

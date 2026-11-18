@@ -20,17 +20,20 @@ public class InterrogationEnding
 {
     public string title;
     [TextArea] public string text;
-    [Tooltip("Respostas certas necessárias para este final. Vence o maior valor que for atingido.")]
-    public int minCorrect;
 }
 
 public class InterrogationManager : MonoBehaviour
 {
     [Header("Conteúdo (editável no Inspector)")]
     [SerializeField] private InterrogationQuestion[] questions;
-    [SerializeField] private InterrogationEnding[] endings;
     [Tooltip("Usado se abrires esta cena diretamente no editor.")]
     [SerializeField] private CharacterType fallbackCharacter = CharacterType.Axel;
+
+    [Header("Finais (decididos pelos pontos)")]
+    [SerializeField] private InterrogationEnding axelWinsEnding;
+    [SerializeField] private InterrogationEnding mikeWinsEnding;
+    [Tooltip("Empate, ou nenhum dos dois com pontos positivos.")]
+    [SerializeField] private InterrogationEnding bothJailedEnding;
 
     [Header("Tempo para responder")]
     [Tooltip("Segundos por pergunta. 0 = sem limite.")]
@@ -57,7 +60,6 @@ public class InterrogationManager : MonoBehaviour
 
     private readonly List<AnswerSlot> slots = new List<AnswerSlot>();
     private int index;
-    private int correct;
     private bool answered;
     private float timeLeft;
     private bool timerRunning;
@@ -111,7 +113,12 @@ public class InterrogationManager : MonoBehaviour
         replyText.text = "";
 
         if (progressText != null)
-            progressText.text = $"Pergunta {index + 1}/{questions.Length}";
+        {
+            int axelScore = GameSession.GetScore(CharacterType.Axel);
+            int mikeScore = GameSession.GetScore(CharacterType.Mike);
+            progressText.text = $"Axel: {axelScore} pts  |  Mike: {mikeScore} pts";
+
+        }
 
         timerRunning = secondsPerQuestion > 0f;
         timeLeft = secondsPerQuestion;
@@ -139,8 +146,8 @@ public class InterrogationManager : MonoBehaviour
 
         InterrogationQuestion q = questions[index];
         bool good = !timedOut && item != null && IsGood(q, item.name);
-        if (good) correct++;
 
+        // As respostas só mudam a reação do interrogador; o final depende dos pontos.
         if (timedOut)
             replyText.text = timeoutReply;
         else
@@ -165,21 +172,35 @@ public class InterrogationManager : MonoBehaviour
         timerRunning = false;
         if (timerBar != null) timerBar.gameObject.SetActive(false);
 
-        InterrogationEnding best = null;
+        GameOutcome outcome = GameSession.GetOutcome();
+        int axelScore = GameSession.GetScore(CharacterType.Axel);
+        int mikeScore = GameSession.GetScore(CharacterType.Mike);
 
-        if (endings != null)
+        InterrogationEnding ending;
+        string defaultTitle;
+
+        switch (outcome)
         {
-            foreach (InterrogationEnding e in endings)
-            {
-                if (correct >= e.minCorrect && (best == null || e.minCorrect > best.minCorrect))
-                    best = e;
-            }
+            case GameOutcome.AxelWins:
+                ending = axelWinsEnding;
+                defaultTitle = "O Axel vence";
+                break;
+            case GameOutcome.MikeWins:
+                ending = mikeWinsEnding;
+                defaultTitle = "O Mike vence";
+                break;
+            default:
+                ending = bothJailedEnding;
+                defaultTitle = "Os dois são presos";
+                break;
         }
 
+        string title = (ending != null && !string.IsNullOrEmpty(ending.title)) ? ending.title : defaultTitle;
+        string body = ending != null ? ending.text : "";
+
         endingPanel.SetActive(true);
-        endingTitleText.text = best != null ? best.title : "Fim";
-        endingBodyText.text = (best != null ? best.text : "") +
-                              $"\n\nRespostas certas: {correct}/{questions.Length}";
+        endingTitleText.text = title;
+        endingBodyText.text = body + $"\n\nPontos - Axel: {axelScore} | Mike: {mikeScore}";
     }
 
     private static bool IsGood(InterrogationQuestion q, string itemName)

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum GameMode { Solo, Host, Client }
+public enum GameOutcome { AxelWins, MikeWins, BothJailed }
 
 public static class GameSession
 {
@@ -20,6 +21,11 @@ public static class GameSession
 
     // Evita spam/loops de tentar esconder várias vezes o mesmo item
     private static readonly HashSet<string> processedHideAttempts = new HashSet<string>();
+
+    // Itens recolhidos (apanhados ou fotografados) e os pontos que dão a cada personagem.
+    // Cada item conta uma única vez, mesmo que os dois o recolham.
+    private static readonly Dictionary<string, (int axel, int mike)> collectedPoints =
+        new Dictionary<string, (int axel, int mike)>();
 
     public static void Select(CharacterType character) => SelectedCharacter = character;
     public static void SetMode(GameMode mode) => Mode = mode;
@@ -64,6 +70,37 @@ public static class GameSession
         return processedHideAttempts.Contains(itemName);
     }
 
+    // ---------- Pontos ----------
+
+    // Chamado quando um item é recolhido. Os pontos entram na conta dos dois, uma única vez por item.
+    public static void RegisterCollected(string itemName, int axelPoints, int mikePoints)
+    {
+        if (collectedPoints.ContainsKey(itemName)) return;
+        collectedPoints[itemName] = (axelPoints, mikePoints);
+    }
+
+    public static int GetScore(CharacterType character)
+    {
+        int total = 0;
+
+        foreach (var entry in collectedPoints.Values)
+            total += character == CharacterType.Axel ? entry.axel : entry.mike;
+
+        return total;
+    }
+
+    // Vence quem tiver mais pontos, desde que sejam positivos.
+    // Empate, ou ninguém com pontos positivos: vão os dois presos.
+    public static GameOutcome GetOutcome()
+    {
+        int axel = GetScore(CharacterType.Axel);
+        int mike = GetScore(CharacterType.Mike);
+
+        if (axel > mike && axel > 0) return GameOutcome.AxelWins;
+        if (mike > axel && mike > 0) return GameOutcome.MikeWins;
+        return GameOutcome.BothJailed;
+    }
+
     public static void ResetItems()
     {
         foreach (List<ItemInfo> list in items.Values)
@@ -71,6 +108,7 @@ public static class GameSession
 
         hiddenItemsBy.Clear();
         processedHideAttempts.Clear();
+        collectedPoints.Clear();
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
