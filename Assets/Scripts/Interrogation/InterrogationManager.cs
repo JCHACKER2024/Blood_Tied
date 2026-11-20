@@ -45,7 +45,10 @@ public class InterrogationManager : MonoBehaviour
     [Header("UI - Pergunta")]
     [SerializeField] private TMP_Text questionText;
     [SerializeField] private TMP_Text replyText;
+    [Tooltip("Mostra os pontos do jogador que está a jogar.")]
     [SerializeField] private TMP_Text progressText;
+    [Tooltip("{0} = pontos do jogador. Ex: 'PONTOS {0}'")]
+    [SerializeField] private string pointsFormat = "Pontos: {0}";
     [SerializeField] private Transform answersParent;
     [SerializeField] private AnswerSlot answerSlotPrefab;
     [SerializeField] private Button noAnswerButton;
@@ -59,6 +62,7 @@ public class InterrogationManager : MonoBehaviour
     [SerializeField] private string menuSceneName = "MainMenu";
 
     private readonly List<AnswerSlot> slots = new List<AnswerSlot>();
+    private CharacterType character;
     private int index;
     private bool answered;
     private float timeLeft;
@@ -74,7 +78,7 @@ public class InterrogationManager : MonoBehaviour
             return;
         }
 
-        CharacterType character = GameSession.SelectedCharacter ?? fallbackCharacter;
+        character = GameSession.SelectedCharacter ?? fallbackCharacter;
 
         foreach (ItemInfo item in GameSession.GetItems(character))
         {
@@ -113,12 +117,7 @@ public class InterrogationManager : MonoBehaviour
         replyText.text = "";
 
         if (progressText != null)
-        {
-            int axelScore = GameSession.GetScore(CharacterType.Axel);
-            int mikeScore = GameSession.GetScore(CharacterType.Mike);
-            progressText.text = $"Axel: {axelScore} pts  |  Mike: {mikeScore} pts";
-
-        }
+            progressText.text = string.Format(pointsFormat, GameSession.GetScore(character));
 
         timerRunning = secondsPerQuestion > 0f;
         timeLeft = secondsPerQuestion;

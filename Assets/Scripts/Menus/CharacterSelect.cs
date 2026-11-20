@@ -27,7 +27,30 @@ public class CharacterSelect : NetworkBehaviour
         NetworkVariableWritePermission.Server
     );
 
+    // Modo solo (sem rede): 0 = Axel | 1 = Mike | -1 = ninguém
+    private int soloChoice = -1;
     private bool leaving;
+
+    private bool IsSolo => GameSession.Mode == GameMode.Solo;
+
+    // ---------- Arranque ----------
+
+    private void Start()
+    {
+        // Online: quem trata de tudo é o OnNetworkSpawn
+        if (!IsSolo) return;
+
+        if (axelButton != null) axelButton.interactable = true;
+        if (mikeButton != null) mikeButton.interactable = true;
+
+        if (readyButton != null)
+        {
+            readyButton.gameObject.SetActive(true);
+            readyButton.interactable = false;
+        }
+
+        UpdateSoloUI();
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -55,16 +78,78 @@ public class CharacterSelect : NetworkBehaviour
         base.OnNetworkDespawn();
     }
 
+    // ---------- Botões ----------
+
     public void SelectAxel()
     {
-        if (!IsServer || leaving) return;
+        if (leaving) return;
+
+        if (IsSolo)
+        {
+            soloChoice = 0;
+            UpdateSoloUI();
+            return;
+        }
+
+        if (!IsServer) return;
         hostChoice.Value = 0; // Host = Axel, Cliente = Mike
     }
 
     public void SelectMike()
     {
-        if (!IsServer || leaving) return;
+        if (leaving) return;
+
+        if (IsSolo)
+        {
+            soloChoice = 1;
+            UpdateSoloUI();
+            return;
+        }
+
+        if (!IsServer) return;
         hostChoice.Value = 1; // Host = Mike, Cliente = Axel
+    }
+
+    public void ConfirmAndStartGame()
+    {
+        if (leaving) return;
+
+        if (IsSolo)
+        {
+            if (soloChoice == -1) return;
+            StartCoroutine(LoadRoutine(nextSceneName));
+            return;
+        }
+
+        if (!IsServer || hostChoice.Value == -1) return;
+        StartCoroutine(LoadNetworkSceneRoutine(nextSceneName));
+    }
+
+    public void Back()
+    {
+        if (leaving) return;
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            NetworkManager.Singleton.Shutdown();
+
+        StartCoroutine(LoadRoutine(menuSceneName));
+    }
+
+    // ---------- UI ----------
+
+    private void UpdateSoloUI()
+    {
+        if (soloChoice == -1)
+        {
+            if (statusText != null) statusText.text = "Escolhe a tua personagem";
+            return;
+        }
+
+        CharacterType chosen = soloChoice == 0 ? CharacterType.Axel : CharacterType.Mike;
+        GameSession.Select(chosen);
+
+        if (readyButton != null) readyButton.interactable = true;
+        if (statusText != null) statusText.text = $"Tu: {chosen} - Carrega em PRONTO";
     }
 
     private void OnHostChoiceChanged(int oldValue, int newValue)
@@ -101,26 +186,12 @@ public class CharacterSelect : NetworkBehaviour
         {
             CharacterType partnerCharacter = (myCharacter == CharacterType.Axel) ? CharacterType.Mike : CharacterType.Axel;
             statusText.text = IsServer
-                ? $"Tu: {myCharacter} | Parceiro: {partnerCharacter} — Carrega em PRONTO"
+                ? $"Tu: {myCharacter} | Parceiro: {partnerCharacter} - Carrega em PRONTO"
                 : $"Tu: {myCharacter} | Host: {partnerCharacter} — A aguardar o Host iniciar...";
         }
     }
 
-    public void ConfirmAndStartGame()
-    {
-        if (!IsServer || leaving || hostChoice.Value == -1) return;
-        StartCoroutine(LoadNetworkSceneRoutine(nextSceneName));
-    }
-
-    public void Back()
-    {
-        if (leaving) return;
-
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
-            NetworkManager.Singleton.Shutdown();
-
-        StartCoroutine(LoadRoutine(menuSceneName));
-    }
+    // ---------- Cenas ----------
 
     private IEnumerator LoadNetworkSceneRoutine(string sceneName)
     {
@@ -141,6 +212,14 @@ public class CharacterSelect : NetworkBehaviour
     {
         leaving = true;
         yield return new WaitForSecondsRealtime(exitDelay);
+
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
+        {
+            Debug.LogWarning($"CharacterSelect: a cena '{sceneName}' não existe nas Build Settings.", this);
+            leaving = false;
+            yield break;
+        }
+
         SceneManager.LoadScene(sceneName);
     }
 }
