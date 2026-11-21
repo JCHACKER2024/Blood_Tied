@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -31,21 +32,34 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float walkAnimSpeed = 1f;
 
     private Rigidbody2D rb;
+    private NetworkObject netObject;
     private float moveInput;
     private string currentState = "";
     private bool controlled = true;
 
+    // Jogador do outro PC: o movimento deduz-se pela posição que chega pela rede
+    private Vector3 lastRemotePos;
+    private float remoteMoveTimer;
+    private float remoteDirection = 1f;
+
     public CharacterType Character => character;
 
+    // Online: só o PC dono deste personagem o controla. Solo: sempre verdadeiro.
+    private bool IsNetworked => GameSession.Mode != GameMode.Solo && netObject != null;
+    private bool OwnedLocally => !IsNetworked || netObject.IsOwner;
+
     // Fica "não controlado" enquanto o inventário está aberto
-    public bool IsControlled => controlled && !InventoryUI.IsOpen;
+    public bool IsControlled => controlled && OwnedLocally && !InventoryUI.IsOpen;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        netObject = GetComponent<NetworkObject>();
 
         if (animator == null) animator = GetComponentInChildren<Animator>();
         if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        lastRemotePos = transform.position;
     }
 
     public void SetControlled(bool value)
@@ -61,6 +75,13 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // Personagem do outro PC: animação e direção pela posição recebida
+        if (!OwnedLocally)
+        {
+            UpdateRemote();
+            return;
+        }
+
         if (!IsControlled)
         {
             moveInput = 0f;
@@ -86,13 +107,41 @@ public class PlayerController : MonoBehaviour
 
         moveInput = (right ? 1f : 0f) - (left ? 1f : 0f);
 
-        if (spriteRenderer != null && moveInput != 0f)
+        ApplyFlip();
+        UpdateAnimation();
+    }
+
+    private void UpdateRemote()
+    {
+        float dx = transform.position.x - lastRemotePos.x;
+        lastRemotePos = transform.position;
+
+        float speed = Mathf.Abs(dx) / Mathf.Max(Time.deltaTime, 0.0001f);
+
+        // Ignora saltos grandes (portas) e movimento mínimo
+        if (speed > 0.2f && Mathf.Abs(dx) < 1f)
         {
-            bool goingLeft = moveInput < 0f;
-            spriteRenderer.flipX = spriteFacesRight ? goingLeft : !goingLeft;
+            remoteMoveTimer = 0.12f;
+            remoteDirection = dx > 0f ? 1f : -1f;
+        }
+        else
+        {
+            remoteMoveTimer -= Time.deltaTime;
         }
 
+        // O pequeno temporizador evita que a animação pisque entre atualizações da rede
+        moveInput = remoteMoveTimer > 0f ? remoteDirection : 0f;
+
+        ApplyFlip();
         UpdateAnimation();
+    }
+
+    private void ApplyFlip()
+    {
+        if (spriteRenderer == null || moveInput == 0f) return;
+
+        bool goingLeft = moveInput < 0f;
+        spriteRenderer.flipX = spriteFacesRight ? goingLeft : !goingLeft;
     }
 
     private void UpdateAnimation()
@@ -117,6 +166,9 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // O personagem do outro PC é movido pela rede, não por nós
+        if (!OwnedLocally) return;
+
         Vector2 vel = rb.linearVelocity;
         vel.x = moveInput * moveSpeed;
         rb.linearVelocity = vel;

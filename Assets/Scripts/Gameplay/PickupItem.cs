@@ -44,6 +44,8 @@ public class PickupItem : Interactable
     private Coroutine hideCoroutine;
     private bool isBeingHidden;
 
+    public string ItemName => itemName;
+
     // Mudado de Start para Awake para evitar o aviso CS0114 com a classe pai Interactable
     private void Awake()
     {
@@ -93,7 +95,12 @@ public class PickupItem : Interactable
         GameSession.RegisterCollected(itemName, axelPoints, mikePoints);
         Debug.Log($"[Pontos] {itemName} recolhido por {player.Character} -> Axel: {GameSession.GetScore(CharacterType.Axel)} | Mike: {GameSession.GetScore(CharacterType.Mike)}");
 
-        if (player.Character == CharacterType.Axel && axelRemovesItem)
+        bool removed = player.Character == CharacterType.Axel && axelRemovesItem;
+
+        // Online: avisa o outro PC
+        ItemNetworkSync.NotifyCollected(itemName, axelPoints, mikePoints, removed);
+
+        if (removed)
         {
             Destroy(gameObject);
         }
@@ -195,6 +202,10 @@ public class PickupItem : Interactable
         GameSession.HideItem(itemName, hider);
         GameSession.ExposeItem(itemName);
         gameObject.SetActive(true);
+
+        // Online: avisa o outro PC
+        ItemNetworkSync.NotifyHidden(itemName, hider, true);
+
         Debug.Log($"[Co-op] {hider} foi apanhado em flagrante pelo parceiro a tentar esconder {itemName}!");
     }
 
@@ -204,6 +215,10 @@ public class PickupItem : Interactable
         if (progressContainer != null) progressContainer.SetActive(false);
 
         GameSession.HideItem(itemName, hider);
+
+        // Online: avisa o outro PC (antes de desativar o objeto)
+        ItemNetworkSync.NotifyHidden(itemName, hider, false);
+
         gameObject.SetActive(false);
         Debug.Log($"[Co-op] {hider} escondeu {itemName} com sucesso!");
     }

@@ -15,12 +15,26 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] private bool uniquePoints = true;
 
     private const int MaxAttempts = 50;
+    private bool spawned;
 
     private void Awake()
     {
+        // Solo: sorteia logo. Online: espera pela semente do host (o GameNetworkSetup chama Spawn).
+        if (GameSession.Mode == GameMode.Solo)
+            Spawn(Random.Range(int.MinValue, int.MaxValue));
+    }
+
+    // Com a mesma semente, os dois PCs chegam exatamente ao mesmo resultado.
+    public void Spawn(int seed)
+    {
+        if (spawned) return;
+        spawned = true;
+
+        System.Random rng = new System.Random(seed);
+
         for (int attempt = 0; attempt < MaxAttempts; attempt++)
         {
-            if (TryAssign(out List<(PickupItem item, Transform point)> result))
+            if (TryAssign(rng, out List<(PickupItem item, Transform point)> result))
             {
                 foreach (var (item, point) in result)
                 {
@@ -36,7 +50,7 @@ public class ItemSpawner : MonoBehaviour
         Debug.LogWarning("ItemSpawner: não foi possível atribuir pontos a todos os itens. Põe mais pontos de spawn.", this);
     }
 
-    private bool TryAssign(out List<(PickupItem, Transform)> result)
+    private bool TryAssign(System.Random rng, out List<(PickupItem, Transform)> result)
     {
         result = new List<(PickupItem, Transform)>();
         HashSet<Transform> used = new HashSet<Transform>();
@@ -45,7 +59,7 @@ public class ItemSpawner : MonoBehaviour
         List<SpawnEntry> order = new List<SpawnEntry>(entries);
         for (int i = order.Count - 1; i > 0; i--)
         {
-            int j = Random.Range(0, i + 1);
+            int j = rng.Next(0, i + 1);
             (order[i], order[j]) = (order[j], order[i]);
         }
 
@@ -63,7 +77,7 @@ public class ItemSpawner : MonoBehaviour
 
             if (options.Count == 0) return false;
 
-            Transform chosen = options[Random.Range(0, options.Count)];
+            Transform chosen = options[rng.Next(0, options.Count)];
             used.Add(chosen);
             result.Add((entry.item, chosen));
         }
