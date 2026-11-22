@@ -452,6 +452,65 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 225067441}
   m_CullTransparentMesh: 1
+--- !u!1 &463534803
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 463534805}
+  - component: {fileID: 463534804}
+  m_Layer: 0
+  m_Name: InterrogationNetwork
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &463534804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 463534803}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 3774555240
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!4 &463534805
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 463534803}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.11937, y: 12.81919, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &505899034
 GameObject:
   m_ObjectHideFlags: 0
@@ -602,13 +661,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62ff9217cebbe214ab4597fc72b794c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InterrogationManager
-  questions:
-  - question: Question
-    goodItems:
-    - Isqueiro
-    goodReply: Correct
-    badReply: Incorrect
+  axelQuestions:
+  - question: 
+    goodItems: []
+    goodReply: 
+    badReply: 
+  mikeQuestions: []
   fallbackCharacter: 0
+  loseItemOnWrongAnswer: 0
   axelWinsEnding:
     title: ' Innocent'
     text: Mike is guilty.
@@ -624,10 +684,14 @@ MonoBehaviour:
   questionText: {fileID: 225067443}
   replyText: {fileID: 1162137369}
   progressText: {fileID: 629940405}
+  pointsFormat: 'Pontos: {0}'
   answersParent: {fileID: 1023755283}
   answerSlotPrefab: {fileID: 570874999702872614, guid: 2e98469250a958f458bbbf53750ea7e5, type: 3}
   noAnswerButton: {fileID: 198593363}
   continueButton: {fileID: 505899036}
+  waitingPanel: {fileID: 0}
+  waitingText: {fileID: 0}
+  waitingFormat: Waiting for {0} to finish...
   endingPanel: {fileID: 1925171363}
   endingTitleText: {fileID: 1140645115}
   endingBodyText: {fileID: 1235837253}
@@ -2355,3 +2419,4 @@ SceneRoots:
   - {fileID: 991742791}
   - {fileID: 1155633393}
   - {fileID: 577719961}
+  - {fileID: 463534805}

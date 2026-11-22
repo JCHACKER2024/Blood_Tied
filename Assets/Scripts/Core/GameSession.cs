@@ -22,10 +22,13 @@ public static class GameSession
     // Evita spam/loops de tentar esconder várias vezes o mesmo item
     private static readonly HashSet<string> processedHideAttempts = new HashSet<string>();
 
-    // Itens recolhidos (apanhados ou fotografados) e os pontos que dão a cada personagem.
-    // Cada item conta uma única vez, mesmo que os dois o recolham.
-    private static readonly Dictionary<string, (int axel, int mike)> collectedPoints =
+    // Itens recolhidos (apanhados ou fotografados) e os pontos que valem para cada personagem.
+    // Ainda NÃO contam: só contam quando o item é usado numa resposta certa.
+    private static readonly Dictionary<string, (int axel, int mike)> itemPoints =
         new Dictionary<string, (int axel, int mike)>();
+
+    // Itens que já deram os seus pontos no interrogatório (cada item só conta uma vez)
+    private static readonly HashSet<string> awardedItems = new HashSet<string>();
 
     public static void Select(CharacterType character) => SelectedCharacter = character;
     public static void SetMode(GameMode mode) => Mode = mode;
@@ -72,19 +75,35 @@ public static class GameSession
 
     // ---------- Pontos ----------
 
-    // Chamado quando um item é recolhido. Os pontos entram na conta dos dois, uma única vez por item.
+    // Chamado quando um item é recolhido: guarda os pontos que ele VAI valer (ainda não os dá).
     public static void RegisterCollected(string itemName, int axelPoints, int mikePoints)
     {
-        if (collectedPoints.ContainsKey(itemName)) return;
-        collectedPoints[itemName] = (axelPoints, mikePoints);
+        if (itemPoints.ContainsKey(itemName)) return;
+        itemPoints[itemName] = (axelPoints, mikePoints);
+    }
+
+    // Chamado no interrogatório quando um item acerta numa pergunta.
+    // Devolve false se o item não foi recolhido ou se já tinha dado os pontos.
+    public static bool AwardPoints(string itemName)
+    {
+        if (!itemPoints.ContainsKey(itemName)) return false;
+        return awardedItems.Add(itemName);
+    }
+
+    public static bool IsAwarded(string itemName)
+    {
+        return awardedItems.Contains(itemName);
     }
 
     public static int GetScore(CharacterType character)
     {
         int total = 0;
 
-        foreach (var entry in collectedPoints.Values)
-            total += character == CharacterType.Axel ? entry.axel : entry.mike;
+        foreach (string name in awardedItems)
+        {
+            if (!itemPoints.TryGetValue(name, out var pts)) continue;
+            total += character == CharacterType.Axel ? pts.axel : pts.mike;
+        }
 
         return total;
     }
@@ -108,7 +127,8 @@ public static class GameSession
 
         hiddenItemsBy.Clear();
         processedHideAttempts.Clear();
-        collectedPoints.Clear();
+        itemPoints.Clear();
+        awardedItems.Clear();
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
