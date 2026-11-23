@@ -2789,7 +2789,7 @@ Transform:
   m_GameObject: {fileID: 290906820}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 62, y: -1, z: 0}
+  m_LocalPosition: {x: 60.75, y: -1, z: 0}
   m_LocalScale: {x: 3, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4242,7 +4242,7 @@ Transform:
   m_GameObject: {fileID: 413285515}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 62.5, y: 0, z: 0}
+  m_LocalPosition: {x: 61.75, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6248,7 +6248,7 @@ Transform:
   m_GameObject: {fileID: 689878463}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 38, y: -1, z: 0}
+  m_LocalPosition: {x: 39, y: -1, z: 0}
   m_LocalScale: {x: 3, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6800,7 +6800,6 @@ GameObject:
   - component: {fileID: 713449673}
   - component: {fileID: 713449674}
   - component: {fileID: 713449676}
-  - component: {fileID: 713449675}
   m_Layer: 0
   m_Name: Mike
   m_TagString: Untagged
@@ -7030,23 +7029,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &713449675
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 713449665}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkRigidbody2D
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkRigidbodyBaseExpanded: 0
-  UseRigidBodyForMotion: 0
-  AutoUpdateKinematicState: 1
-  AutoSetKinematicOnDespawn: 1
 --- !u!114 &713449676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14098,7 +14080,7 @@ Transform:
   m_GameObject: {fileID: 1598414897}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 37.5, y: 0, z: 0}
+  m_LocalPosition: {x: 38.25, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -15723,7 +15705,6 @@ GameObject:
   - component: {fileID: 1795267284}
   - component: {fileID: 1795267285}
   - component: {fileID: 1795267287}
-  - component: {fileID: 1795267286}
   m_Layer: 0
   m_Name: Axel
   m_TagString: Untagged
@@ -15953,23 +15934,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &1795267286
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1795267276}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.Components.NetworkRigidbody2D
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkRigidbodyBaseExpanded: 0
-  UseRigidBodyForMotion: 0
-  AutoUpdateKinematicState: 1
-  AutoSetKinematicOnDespawn: 1
 --- !u!114 &1795267287
 MonoBehaviour:
   m_ObjectHideFlags: 0
