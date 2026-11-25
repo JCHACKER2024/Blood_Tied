@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,6 +11,8 @@ public class ItemViewer : MonoBehaviour
 
     public static bool ChangedThisFrame => lastChangeFrame == Time.frameCount;
     private static int lastChangeFrame = -1;
+
+    public event Action<ItemInfo> InspectionClosed;
 
     [Header("UI")]
     [SerializeField] private GameObject panel;
@@ -26,6 +29,7 @@ public class ItemViewer : MonoBehaviour
     private ItemInfo current;
     private int frameIndex;
     private bool zoomed;
+    private bool notifyOnClose;
 
     private void Awake()
     {
@@ -72,16 +76,17 @@ public class ItemViewer : MonoBehaviour
     {
         if (character != CharacterType.Axel) return;
 
-        Show(item);
+        Show(item, notifyWhenClosed: false);
     }
 
-    public void Show(ItemInfo item)
+    public void Show(ItemInfo item, bool notifyWhenClosed = false)
     {
         if (item == null) return;
 
         current = item;
         frameIndex = 0;
         zoomed = false;
+        notifyOnClose = notifyWhenClosed;
 
         IsOpen = true;
         lastChangeFrame = Time.frameCount;
@@ -92,13 +97,23 @@ public class ItemViewer : MonoBehaviour
 
     public void Close()
     {
+        bool wasOpen = IsOpen;
+        ItemInfo closedItem = current;
+        bool shouldNotify = notifyOnClose;
+
         IsOpen = false;
         lastChangeFrame = Time.frameCount;
+        notifyOnClose = false;
 
         current = null;
         if (panel != null)
         {
             panel.SetActive(false);
+        }
+
+        if (wasOpen && shouldNotify)
+        {
+            InspectionClosed?.Invoke(closedItem);
         }
     }
 

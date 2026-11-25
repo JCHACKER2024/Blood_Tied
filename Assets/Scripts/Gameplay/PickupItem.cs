@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -43,6 +44,8 @@ public class PickupItem : Interactable
 
     private Coroutine hideCoroutine;
     private bool isBeingHidden;
+    private readonly HashSet<CharacterType> inspectedBy = new HashSet<CharacterType>();
+    private CharacterType? pendingHideCharacter;
 
     public string ItemName => itemName;
 
@@ -51,6 +54,52 @@ public class PickupItem : Interactable
     {
         if (progressContainer != null)
             progressContainer.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        if (ItemViewer.Instance != null)
+            ItemViewer.Instance.InspectionClosed += HandleInspectionClosed;
+    }
+
+    private void OnDisable()
+    {
+        if (ItemViewer.Instance != null)
+            ItemViewer.Instance.InspectionClosed -= HandleInspectionClosed;
+
+        pendingHideCharacter = null;
+    }
+
+    private void HandleInspectionClosed(ItemInfo closedItem)
+    {
+        if (!pendingHideCharacter.HasValue) return;
+        if (closedItem == null || closedItem.name != itemName) return;
+
+        CharacterType character = pendingHideCharacter.Value;
+        pendingHideCharacter = null;
+
+        // Atualiza o prompt caso o jogador continue perto do item
+        PlayerController player = FindPlayer(character);
+        if (player != null)
+        {
+            UpdatePromptText(player);
+        }
+    }
+
+    private PlayerController FindPlayer(CharacterType character)
+    {
+        PlayerController[] foundPlayers = FindObjectsByType<PlayerController>(FindObjectsInactive.Exclude);
+        foreach (PlayerController p in foundPlayers)
+        {
+            if (p != null && p.Character == character)
+                return p;
+        }
+        return null;
+    }
+
+    private ItemInfo CreateItemInfo()
+    {
+        return new ItemInfo(itemName, description, icon, examineFrames);
     }
 
     public override string GetInteractPrompt(PlayerController player)
@@ -66,7 +115,9 @@ public class PickupItem : Interactable
     {
         if (isBeingHidden || !CanSecondaryInteract(player)) return string.Empty;
 
-        return "Press F to hide the item!";
+        return inspectedBy.Contains(player.Character)
+            ? "Press F to hide the item!"
+            : "Press F to inspect!";
     }
 
     public override bool CanInteract(PlayerController player)
@@ -89,7 +140,7 @@ public class PickupItem : Interactable
             return;
         }
 
-        Inventory.Instance.Add(player.Character, new ItemInfo(itemName, description, icon, examineFrames));
+        Inventory.Instance.Add(player.Character, CreateItemInfo());
 
         // Os pontos entram na conta dos dois (uma única vez por item)
         GameSession.RegisterCollected(itemName, axelPoints, mikePoints);
@@ -118,6 +169,29 @@ public class PickupItem : Interactable
     {
         if (!CanSecondaryInteract(player)) return;
 
+        // 1.ª vez com F: abre o ItemViewer para inspecionar antes de permitir esconder
+        if (!inspectedBy.Contains(player.Character))
+        {
+            inspectedBy.Add(player.Character);
+
+            if (ItemViewer.Instance != null)
+            {
+                pendingHideCharacter = player.Character;
+                ItemViewer.Instance.Show(CreateItemInfo(), notifyWhenClosed: true);
+            }
+            else
+            {
+                Debug.LogWarning("PickupItem: ItemViewer.Instance não encontrado, a esconder diretamente.", this);
+                StartHideProcess(player);
+            }
+            return;
+        }
+
+        StartHideProcess(player);
+    }
+
+    private void StartHideProcess(PlayerController player)
+    {
         if (IsPartnerNearby(player.Character))
         {
             CaughtInTheAct(player.Character);
