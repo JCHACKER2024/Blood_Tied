@@ -17,7 +17,6 @@ public class PlayerSwitcher : MonoBehaviour
 
     private void Awake()
     {
-        // Os players não se empurram nem bloqueiam uns aos outros
         for (int i = 0; i < players.Length; i++)
         {
             for (int j = i + 1; j < players.Length; j++)
@@ -37,7 +36,6 @@ public class PlayerSwitcher : MonoBehaviour
             return;
         }
 
-        // Começa com o personagem escolhido na cena de seleção
         currentIndex = 0;
         if (GameSession.SelectedCharacter.HasValue)
         {
@@ -62,7 +60,8 @@ public class PlayerSwitcher : MonoBehaviour
     {
         if (!CanSwitch || switching || ScreenFader.Busy || players == null || players.Length < 2) return;
 
-        // Não troca com inventário/câmara/vista aberta, nem no frame em que o Tab os fecha
+        if (PauseMenu.IsPaused) return;
+
         if (InventoryUI.IsOpen || uiWasOpen) return;
 
         Keyboard kb = Keyboard.current;
